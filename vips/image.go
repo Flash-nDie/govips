@@ -1746,6 +1746,17 @@ func (r *ImageRef) HistogramEntropy() (float64, error) {
 	return vipsHistEntropy(r.image)
 }
 
+// Subtract caculate subtract operation
+func (r *ImageRef) Subtract(in2 *ImageRef) error {
+	out, err := vipsSubtract(r.image, in2.image)
+	if err != nil {
+		return err
+	}
+
+	r.setImage(out)
+	return nil
+}
+
 // DrawRect draws an (optionally filled) rectangle with a single colour
 func (r *ImageRef) DrawRect(ink ColorRGBA, left int, top int, width int, height int, fill bool) error {
 	err := vipsDrawRect(r.image, ink, left, top, width, height, fill)

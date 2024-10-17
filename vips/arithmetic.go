@@ -174,3 +174,14 @@ func vipsHistEntropy(in *C.VipsImage) (float64, error) {
 
 	return float64(out), nil
 }
+
+func vipsSubtract(in1 *C.VipsImage, in2 *C.VipsImage) (*C.VipsImage, error) {
+	incOpCounter("subtract")
+	var out *C.VipsImage
+
+	if err := C.subtract(in1, in2, &out); err != 0 {
+		return nil, handleImageError(out)
+	}
+
+	return out, nil
+}

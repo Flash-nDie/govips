@@ -18,3 +18,4 @@ int hist_find(VipsImage *in, VipsImage **out);
 int hist_cum(VipsImage *in, VipsImage **out);
 int hist_norm(VipsImage *in, VipsImage **out);
 int hist_entropy(VipsImage *in, double *out);
+int subtract(VipsImage *in1, VipsImage *in2, VipsImage **out);
