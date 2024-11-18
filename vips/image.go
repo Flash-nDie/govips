@@ -110,6 +110,7 @@ type ImportParams struct {
 	JpegShrinkFactor IntParameter
 	HeifThumbnail    BoolParameter
 	SvgUnlimited     BoolParameter
+	Access           IntParameter
 }
 
 // NewImportParams creates default ImportParams
@@ -145,6 +146,9 @@ func (i *ImportParams) OptionString() string {
 	}
 	if v := i.HeifThumbnail; v.IsSet() {
 		values = append(values, "thumbnail="+boolToStr(v.Get()))
+	}
+	if v := i.Access; v.IsSet() {
+		values = append(values, "access="+strconv.Itoa(v.Get()))
 	}
 	return strings.Join(values, ",")
 }

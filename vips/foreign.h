@@ -66,7 +66,8 @@ typedef struct LoadParams {
   Param jpegShrink;
   Param heifThumbnail;
   Param svgUnlimited;
-
+  Param Access;
+  
 } LoadParams;
 
 LoadParams create_load_params(ImageType inputFormat);
