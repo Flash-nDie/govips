@@ -119,8 +119,6 @@ const (
 	PngFilterAll   PngFilter = C.VIPS_FOREIGN_PNG_FILTER_ALL
 )
 
-type Access int
-
 const (
 	AccessRandom               int = C.VIPS_ACCESS_RANDOM
 	AccessSequential           int = C.VIPS_ACCESS_SEQUENTIAL
@@ -349,7 +347,7 @@ func createImportParams(format ImageType, params *ImportParams) C.LoadParams {
 	maybeSetIntParam(params.JpegShrinkFactor, &p.jpegShrink)
 	maybeSetBoolParam(params.HeifThumbnail, &p.heifThumbnail)
 	maybeSetBoolParam(params.SvgUnlimited, &p.svgUnlimited)
-	maybeSetIntParam(params.Access, &p.Access)
+	maybeSetIntParam(params.Access, &p.access)
 
 	if params.Density.IsSet() {
 		C.set_double_param(&p.dpi, C.gdouble(params.Density.Get()))
