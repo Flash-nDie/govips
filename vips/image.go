@@ -1772,7 +1772,7 @@ func (r *ImageRef) Abs() error {
 	return nil
 }
 
-// Abs caculate abs operation
+// Project caculate project operation
 func (r *ImageRef) Project() (*ImageRef, *ImageRef, error) {
 	col, row, err := vipsProject(r.image)
 	if err != nil {
@@ -1780,6 +1780,10 @@ func (r *ImageRef) Project() (*ImageRef, *ImageRef, error) {
 	}
 
 	return newImageRef(col, r.format, r.originalFormat, nil), newImageRef(row, r.format, r.originalFormat, nil), nil
+}
+
+func (r *ImageRef) Min() (float64, int, int, error) {
+	return vipsMin(r.image)
 }
 
 // DrawRect draws an (optionally filled) rectangle with a single colour
