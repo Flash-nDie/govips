@@ -1761,6 +1761,27 @@ func (r *ImageRef) Subtract(in2 *ImageRef) error {
 	return nil
 }
 
+// Abs caculate abs operation
+func (r *ImageRef) Abs() error {
+	out, err := vipsAbs(r.image)
+	if err != nil {
+		return err
+	}
+
+	r.setImage(out)
+	return nil
+}
+
+// Abs caculate abs operation
+func (r *ImageRef) Project() (*ImageRef, *ImageRef, error) {
+	col, row, err := vipsProject(r.image)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return newImageRef(col, r.format, r.originalFormat, nil), newImageRef(row, r.format, r.originalFormat, nil), nil
+}
+
 // DrawRect draws an (optionally filled) rectangle with a single colour
 func (r *ImageRef) DrawRect(ink ColorRGBA, left int, top int, width int, height int, fill bool) error {
 	err := vipsDrawRect(r.image, ink, left, top, width, height, fill)

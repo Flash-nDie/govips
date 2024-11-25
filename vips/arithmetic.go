@@ -185,3 +185,23 @@ func vipsSubtract(in1 *C.VipsImage, in2 *C.VipsImage) (*C.VipsImage, error) {
 
 	return out, nil
 }
+
+func vipsAbs(img *C.VipsImage) (*C.VipsImage, error) {
+	incOpCounter("abs")
+	var out *C.VipsImage
+	if err := C.absOp(img, &out); err != 0 {
+		return nil, handleImageError(out)
+	}
+
+	return out, nil
+}
+
+func vipsProject(in *C.VipsImage) (*C.VipsImage, *C.VipsImage, error) {
+	incOpCounter("project")
+	var col, row *C.VipsImage
+
+	if err := C.project(in, &col, &row); err != 0 {
+		return nil, nil, handleVipsError()
+	}
+	return col, row, nil
+}
