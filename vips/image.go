@@ -2175,3 +2175,19 @@ func Pixelate(imageRef *ImageRef, factor float64) (err error) {
 
 	return
 }
+
+func (r *ImageRef) Kill() error {
+	err := vipsImageKill(r.image)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *ImageRef) IsKilled() error {
+	err := vipsImageIsKilled(r.image)
+	if err != nil {
+		return err
+	}
+	return nil
+}
