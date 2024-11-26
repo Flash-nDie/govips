@@ -87,6 +87,10 @@ void set_image_delay(VipsImage *in, const int *array, int n) {
   return vips_image_set_array_int(in, "delay", array, n);
 }
 
+int get_background(VipsImage *in, double **out, int *n) {
+  return vips_image_get_array_double(in, "background", out, n);
+}
+
 void image_set_double(VipsImage *in, const char *name, double i) {
   vips_image_set_double(in, name, i);
 }
