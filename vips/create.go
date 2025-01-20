@@ -13,31 +13,29 @@ const (
 )
 
 type TextParams struct {
-	Text       string
-	Font       string
-	Width      int
-	Height     int
-	Alignment  Align
-	DPI        int
-	AutofitDPI int
-	RGBA       bool
-	Justify    bool
-	Spacing    int
-	Wrap       TextWrap
+	Text      string
+	Font      string
+	Width     int
+	Height    int
+	Alignment Align
+	DPI       int
+	RGBA      bool
+	Justify   bool
+	Spacing   int
+	Wrap      TextWrap
 }
 
 type vipsTextOptions struct {
-	Text       *C.char
-	Font       *C.char
-	Width      C.int
-	Height     C.int
-	DPI        C.int
-	AutofitDPI C.int
-	RGBA       C.gboolean
-	Justify    C.gboolean
-	Alignment  C.VipsAlign
-	Spacing    C.int
-	Wrap       C.VipsTextWrap
+	Text      *C.char
+	Font      *C.char
+	Width     C.int
+	Height    C.int
+	DPI       C.int
+	RGBA      C.gboolean
+	Justify   C.gboolean
+	Spacing   C.int
+	Alignment C.VipsAlign
+	Wrap      C.VipsTextWrap
 }
 
 // https://libvips.github.io/libvips/API/current/libvips-create.html#vips-xyz
@@ -84,15 +82,14 @@ func vipsText(params *TextParams) (*C.VipsImage, error) {
 	defer freeCString(font)
 
 	opts := vipsTextOptions{
-		Text:       text,
-		Font:       font,
-		Width:      C.int(params.Width),
-		Height:     C.int(params.Height),
-		DPI:        C.int(params.DPI),
-		AutofitDPI: C.int(params.AutofitDPI),
-		Alignment:  C.VipsAlign(params.Alignment),
-		Spacing:    C.int(params.Spacing),
-		Wrap:       C.VipsTextWrap(params.Wrap),
+		Text:      text,
+		Font:      font,
+		Width:     C.int(params.Width),
+		Height:    C.int(params.Height),
+		DPI:       C.int(params.DPI),
+		Alignment: C.VipsAlign(params.Alignment),
+		Spacing:   C.int(params.Spacing),
+		Wrap:      C.VipsTextWrap(params.Wrap),
 	}
 
 	if params.RGBA {

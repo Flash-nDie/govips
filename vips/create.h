@@ -12,12 +12,11 @@ typedef struct {
   const char *Font;
   int Width;
   int Height;
-  VipsAlign Align;
   int DPI;
-  int AutofitDPI;
   gboolean RGBA;
   gboolean Justify;
   int Spacing;
+  VipsAlign Align;
   VipsTextWrap Wrap;
 } TextOptions;
 
