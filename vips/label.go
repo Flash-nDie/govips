@@ -6,6 +6,7 @@ import "unsafe"
 
 // Align represents VIPS_ALIGN
 type Align int
+type TextWrap int
 
 // Direction enum
 const (
