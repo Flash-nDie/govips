@@ -168,6 +168,8 @@ func DetermineImageType(buf []byte) ImageType {
 		return ImageTypeJXL
 	} else if isPDF(buf) {
 		return ImageTypePDF
+	} else if isICO(buf) {
+		return ImageTypeMagick
 	} else {
 		return ImageTypeUnknown
 	}
@@ -276,6 +278,12 @@ func isJXL(buf []byte) bool {
 	return bytes.HasPrefix(buf, jxlHeader) || bytes.HasPrefix(buf, jxlHeaderISOBMFF)
 }
 
+var icoHeader = []byte("\x00\x00\x01\x00")
+
+func isICO(buf []byte) bool {
+	return bytes.HasPrefix(buf, icoHeader)
+}
+
 func vipsLoadFromBuffer(buf []byte, params *ImportParams) (*C.VipsImage, ImageType, ImageType, error) {
 	src := buf
 	// Reference src here so it's not garbage collected during image initialization.
@@ -286,20 +294,26 @@ func vipsLoadFromBuffer(buf []byte, params *ImportParams) (*C.VipsImage, ImageTy
 	originalType := DetermineImageType(src)
 	currentType := originalType
 
+	fmt.Println("here come 1")
 	if originalType == ImageTypeBMP {
+		fmt.Println("here come 2")
 		src, err = bmpToPNG(src)
 		if err != nil {
+			fmt.Println("here come 3")
 			return nil, currentType, originalType, err
 		}
 
 		currentType = ImageTypePNG
 	}
 
+	fmt.Println("here come 4")
 	if !IsTypeSupported(currentType) {
+		fmt.Println("here come 5")
 		govipsLog("govips", LogLevelInfo, fmt.Sprintf("failed to understand image format size=%d", len(src)))
 		return nil, currentType, originalType, ErrUnsupportedImageFormat
 	}
 
+	fmt.Println("here come 6")
 	importParams := createImportParams(currentType, params)
 
 	if err := C.load_from_buffer(&importParams, unsafe.Pointer(&src[0]), C.size_t(len(src))); err != 0 {
