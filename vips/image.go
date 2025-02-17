@@ -8,6 +8,9 @@ import (
 	"errors"
 	"fmt"
 	"image"
+	_ "image/gif"
+	_ "image/jpeg"
+	_ "image/png"
 	"io"
 	"os"
 	"runtime"
@@ -307,6 +310,10 @@ type TiffExportParams struct {
 	Quality       int
 	Compression   TiffCompression
 	Predictor     TiffPredictor
+	Pyramid       bool
+	Tile          bool
+	TileHeight    int
+	TileWidth     int
 }
 
 // NewTiffExportParams creates default values for an export of a TIFF image.
@@ -315,6 +322,10 @@ func NewTiffExportParams() *TiffExportParams {
 		Quality:     80,
 		Compression: TiffCompressionLzw,
 		Predictor:   TiffPredictorHorizontal,
+		Pyramid:     false,
+		Tile:        false,
+		TileHeight:  256,
+		TileWidth:   256,
 	}
 }
 
@@ -1409,6 +1420,13 @@ func (r *ImageRef) RemoveICCProfile() error {
 // TransformICCProfileWithFallback transforms from the embedded ICC profile of the image to the ICC profile at the given path.
 // The fallback ICC profile is used if the image does not have an embedded ICC profile.
 func (r *ImageRef) TransformICCProfileWithFallback(targetProfilePath, fallbackProfilePath string) error {
+	if err := ensureLoadICCPath(&targetProfilePath); err != nil {
+		return err
+	}
+	if err := ensureLoadICCPath(&fallbackProfilePath); err != nil {
+		return err
+	}
+
 	depth := 16
 	if r.BandFormat() == BandFormatUchar || r.BandFormat() == BandFormatChar || r.BandFormat() == BandFormatNotSet {
 		depth = 8
@@ -1442,6 +1460,10 @@ func (r *ImageRef) OptimizeICCProfile() error {
 	r.optimizedIccProfile = SRGBV2MicroICCProfilePath
 	if r.Bands() <= 2 {
 		r.optimizedIccProfile = SGrayV2MicroICCProfilePath
+	}
+
+	if err := ensureLoadICCPath(&r.optimizedIccProfile); err != nil {
+		return err
 	}
 
 	embedded := r.HasICCProfile() && (inputProfile == "")

@@ -6,13 +6,12 @@ import (
 	"bytes"
 	"encoding/xml"
 	"fmt"
+	"golang.org/x/image/bmp"
+	"golang.org/x/net/html/charset"
 	"image/png"
 	"math"
 	"runtime"
 	"unsafe"
-
-	"golang.org/x/image/bmp"
-	"golang.org/x/net/html/charset"
 )
 
 // SubsampleMode correlates to a libvips subsample mode
@@ -20,10 +19,10 @@ type SubsampleMode int
 
 // SubsampleMode enum correlating to libvips subsample modes
 const (
-	VipsForeignSubsampleAuto SubsampleMode = C.VIPS_FOREIGN_JPEG_SUBSAMPLE_AUTO
-	VipsForeignSubsampleOn   SubsampleMode = C.VIPS_FOREIGN_JPEG_SUBSAMPLE_ON
-	VipsForeignSubsampleOff  SubsampleMode = C.VIPS_FOREIGN_JPEG_SUBSAMPLE_OFF
-	VipsForeignSubsampleLast SubsampleMode = C.VIPS_FOREIGN_JPEG_SUBSAMPLE_LAST
+	VipsForeignSubsampleAuto SubsampleMode = C.VIPS_FOREIGN_SUBSAMPLE_AUTO
+	VipsForeignSubsampleOn   SubsampleMode = C.VIPS_FOREIGN_SUBSAMPLE_ON
+	VipsForeignSubsampleOff  SubsampleMode = C.VIPS_FOREIGN_SUBSAMPLE_OFF
+	VipsForeignSubsampleLast SubsampleMode = C.VIPS_FOREIGN_SUBSAMPLE_LAST
 )
 
 // ImageType represents an image type
@@ -161,14 +160,14 @@ func DetermineImageType(buf []byte) ImageType {
 		return ImageTypeHEIF
 	} else if isSVG(buf) {
 		return ImageTypeSVG
-	} else if isPDF(buf) {
-		return ImageTypePDF
 	} else if isBMP(buf) {
 		return ImageTypeBMP
 	} else if isJP2K(buf) {
 		return ImageTypeJP2K
 	} else if isJXL(buf) {
 		return ImageTypeJXL
+	} else if isPDF(buf) {
+		return ImageTypePDF
 	} else {
 		return ImageTypeUnknown
 	}
@@ -247,7 +246,10 @@ func isSVG(buf []byte) bool {
 var pdf = []byte("\x25\x50\x44\x46")
 
 func isPDF(buf []byte) bool {
-	return bytes.HasPrefix(buf, pdf)
+	if len(buf) <= 1024 {
+		return bytes.Contains(buf, pdf)
+	}
+	return bytes.Contains(buf[:1024], pdf)
 }
 
 var bmpHeader = []byte("BM")
@@ -364,7 +366,7 @@ func vipsSaveJPEGToBuffer(in *C.VipsImage, params JpegExportParams) ([]byte, err
 	p.quality = C.int(params.Quality)
 	p.interlace = C.int(boolToInt(params.Interlace))
 	p.jpegOptimizeCoding = C.int(boolToInt(params.OptimizeCoding))
-	p.jpegSubsample = C.VipsForeignJpegSubsample(params.SubsampleMode)
+	p.jpegSubsample = C.VipsForeignSubsample(params.SubsampleMode)
 	p.jpegTrellisQuant = C.int(boolToInt(params.TrellisQuant))
 	p.jpegOvershootDeringing = C.int(boolToInt(params.OvershootDeringing))
 	p.jpegOptimizeScans = C.int(boolToInt(params.OptimizeScans))
@@ -420,6 +422,10 @@ func vipsSaveTIFFToBuffer(in *C.VipsImage, params TiffExportParams) ([]byte, err
 	p.stripMetadata = C.int(boolToInt(params.StripMetadata))
 	p.quality = C.int(params.Quality)
 	p.tiffCompression = C.VipsForeignTiffCompression(params.Compression)
+	p.tiffPyramid = C.int(boolToInt(params.Pyramid))
+	p.tiffTile = C.int(boolToInt(params.Tile))
+	p.tiffTileHeight = C.int(params.TileHeight)
+	p.tiffTileWidth = C.int(params.TileWidth)
 
 	return vipsSaveToBuffer(p)
 }
@@ -469,7 +475,7 @@ func vipsSaveJP2KToBuffer(in *C.VipsImage, params Jp2kExportParams) ([]byte, err
 	p.jp2kLossless = C.int(boolToInt(params.Lossless))
 	p.jp2kTileWidth = C.int(params.TileWidth)
 	p.jp2kTileHeight = C.int(params.TileHeight)
-	p.jpegSubsample = C.VipsForeignJpegSubsample(params.SubsampleMode)
+	p.jpegSubsample = C.VipsForeignSubsample(params.SubsampleMode)
 
 	return vipsSaveToBuffer(p)
 }
