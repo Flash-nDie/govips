@@ -25,6 +25,18 @@ const (
 	VipsForeignSubsampleLast SubsampleMode = C.VIPS_FOREIGN_SUBSAMPLE_LAST
 )
 
+type ForeignKeep int
+
+const (
+	VipsForeignKeepNone  ForeignKeep = C.VIPS_FOREIGN_KEEP_NONE
+	VipsForeignKeepExif  ForeignKeep = C.VIPS_FOREIGN_KEEP_EXIF
+	VipsForeignKeepXmp   ForeignKeep = C.VIPS_FOREIGN_KEEP_XMP
+	VipsForeignKeepIptc  ForeignKeep = C.VIPS_FOREIGN_KEEP_IPTC
+	VipsForeignKeepIcc   ForeignKeep = C.VIPS_FOREIGN_KEEP_ICC
+	VipsForeignKeepOther ForeignKeep = C.VIPS_FOREIGN_KEEP_OTHER
+	VipsForeignKeepAll   ForeignKeep = C.VIPS_FOREIGN_KEEP_ALL
+)
+
 // ImageType represents an image type
 type ImageType int
 
@@ -307,7 +319,7 @@ func vipsLoadFromBuffer(buf []byte, params *ImportParams) (*C.VipsImage, ImageTy
 		govipsLog("govips", LogLevelInfo, fmt.Sprintf("failed to understand image format size=%d", len(src)))
 		return nil, currentType, originalType, ErrUnsupportedImageFormat
 	}
-	
+
 	importParams := createImportParams(currentType, params)
 
 	if err := C.load_from_buffer(&importParams, unsafe.Pointer(&src[0]), C.size_t(len(src))); err != 0 {
@@ -370,7 +382,7 @@ func vipsSaveJPEGToBuffer(in *C.VipsImage, params JpegExportParams) ([]byte, err
 
 	p := C.create_save_params(C.JPEG)
 	p.inputImage = in
-	p.stripMetadata = C.int(boolToInt(params.StripMetadata))
+	p.keep = C.VipsForeignKeep(params.Keep)
 	p.quality = C.int(params.Quality)
 	p.interlace = C.int(boolToInt(params.Interlace))
 	p.jpegOptimizeCoding = C.int(boolToInt(params.OptimizeCoding))
@@ -389,7 +401,7 @@ func vipsSavePNGToBuffer(in *C.VipsImage, params PngExportParams) ([]byte, error
 	p := C.create_save_params(C.PNG)
 	p.inputImage = in
 	p.quality = C.int(params.Quality)
-	p.stripMetadata = C.int(boolToInt(params.StripMetadata))
+	p.keep = C.VipsForeignKeep(params.Keep)
 	p.interlace = C.int(boolToInt(params.Interlace))
 	p.pngCompression = C.int(params.Compression)
 	p.pngFilter = C.VipsForeignPngFilter(params.Filter)
@@ -405,7 +417,7 @@ func vipsSaveWebPToBuffer(in *C.VipsImage, params WebpExportParams) ([]byte, err
 
 	p := C.create_save_params(C.WEBP)
 	p.inputImage = in
-	p.stripMetadata = C.int(boolToInt(params.StripMetadata))
+	p.keep = C.VipsForeignKeep(params.Keep)
 	p.quality = C.int(params.Quality)
 	p.webpLossless = C.int(boolToInt(params.Lossless))
 	p.webpNearLossless = C.int(boolToInt(params.NearLossless))
@@ -427,7 +439,7 @@ func vipsSaveTIFFToBuffer(in *C.VipsImage, params TiffExportParams) ([]byte, err
 
 	p := C.create_save_params(C.TIFF)
 	p.inputImage = in
-	p.stripMetadata = C.int(boolToInt(params.StripMetadata))
+	p.keep = C.VipsForeignKeep(params.Keep)
 	p.quality = C.int(params.Quality)
 	p.tiffCompression = C.VipsForeignTiffCompression(params.Compression)
 	p.tiffPyramid = C.int(boolToInt(params.Pyramid))
@@ -448,6 +460,7 @@ func vipsSaveHEIFToBuffer(in *C.VipsImage, params HeifExportParams) ([]byte, err
 	p.heifLossless = C.int(boolToInt(params.Lossless))
 	p.heifBitdepth = C.int(params.Bitdepth)
 	p.heifEffort = C.int(params.Effort)
+	p.keep = C.VipsForeignKeep(params.Keep)
 
 	return vipsSaveToBuffer(p)
 }
@@ -463,7 +476,7 @@ func vipsSaveAVIFToBuffer(in *C.VipsImage, params AvifExportParams) ([]byte, err
 
 	p := C.create_save_params(C.AVIF)
 	p.inputImage = in
-	p.stripMetadata = C.int(boolToInt(params.StripMetadata))
+	p.keep = C.VipsForeignKeep(params.Keep)
 	p.outputFormat = C.AVIF
 	p.quality = C.int(params.Quality)
 	p.heifLossless = C.int(boolToInt(params.Lossless))
@@ -484,6 +497,7 @@ func vipsSaveJP2KToBuffer(in *C.VipsImage, params Jp2kExportParams) ([]byte, err
 	p.jp2kTileWidth = C.int(params.TileWidth)
 	p.jp2kTileHeight = C.int(params.TileHeight)
 	p.jpegSubsample = C.VipsForeignSubsample(params.SubsampleMode)
+	p.keep = C.VipsForeignKeep(params.Keep)
 
 	return vipsSaveToBuffer(p)
 }
@@ -497,6 +511,7 @@ func vipsSaveGIFToBuffer(in *C.VipsImage, params GifExportParams) ([]byte, error
 	p.gifDither = C.double(params.Dither)
 	p.gifEffort = C.int(params.Effort)
 	p.gifBitdepth = C.int(params.Bitdepth)
+	p.keep = C.VipsForeignKeep(params.Keep)
 
 	return vipsSaveToBuffer(p)
 }
@@ -512,6 +527,7 @@ func vipsSaveJxlToBuffer(in *C.VipsImage, params JxlExportParams) ([]byte, error
 	p.jxlTier = C.int(params.Tier)
 	p.jxlDistance = C.double(params.Distance)
 	p.jxlEffort = C.int(params.Effort)
+	p.keep = C.VipsForeignKeep(params.Keep)
 
 	return vipsSaveToBuffer(p)
 }

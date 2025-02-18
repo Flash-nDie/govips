@@ -252,7 +252,7 @@ int save_buffer(const char *operationName, SaveParams *params,
 // https://libvips.github.io/libvips/API/current/VipsForeignSave.html#vips-jpegsave-buffer
 int set_jpegsave_options(VipsOperation *operation, SaveParams *params) {
   int ret = vips_object_set(
-      VIPS_OBJECT(operation), "strip", params->stripMetadata, "optimize_coding",
+      VIPS_OBJECT(operation), "keep", params->keep, "optimize_coding",
       params->jpegOptimizeCoding, "interlace", params->interlace,
       "subsample_mode", params->jpegSubsample, "trellis_quant",
       params->jpegTrellisQuant, "overshoot_deringing",
@@ -269,7 +269,7 @@ int set_jpegsave_options(VipsOperation *operation, SaveParams *params) {
 // https://libvips.github.io/libvips/API/current/VipsForeignSave.html#vips-pngsave-buffer
 int set_pngsave_options(VipsOperation *operation, SaveParams *params) {
   int ret =
-      vips_object_set(VIPS_OBJECT(operation), "strip", params->stripMetadata,
+      vips_object_set(VIPS_OBJECT(operation), "keep", params->keep,
                       "compression", params->pngCompression, "interlace",
                       params->interlace, "filter", params->pngFilter, "palette",
                       params->pngPalette, NULL);
@@ -296,7 +296,7 @@ int set_pngsave_options(VipsOperation *operation, SaveParams *params) {
 int set_webpsave_options(VipsOperation *operation, SaveParams *params) {
   int ret =
       vips_object_set(VIPS_OBJECT(operation),
-                      "strip", params->stripMetadata,
+                      "keep", params->keep,
                       "lossless", params->webpLossless,
                       "near_lossless", params->webpNearLossless,
                       "reduction_effort", params->webpReductionEffort,
@@ -316,7 +316,7 @@ int set_webpsave_options(VipsOperation *operation, SaveParams *params) {
 // https://libvips.github.io/libvips/API/current/VipsForeignSave.html#vips-tiffsave-buffer
 int set_tiffsave_options(VipsOperation *operation, SaveParams *params) {
   int ret = vips_object_set(
-      VIPS_OBJECT(operation), "strip", params->stripMetadata, "compression",
+      VIPS_OBJECT(operation), "keep", params->keep, "compression",
       params->tiffCompression, "predictor", params->tiffPredictor, "pyramid",
       params->tiffPyramid, "tile_height", params->tiffTileHeight, "tile_width",
       params->tiffTileWidth, "tile", params->tiffTile, NULL);
@@ -352,13 +352,15 @@ int set_gifsave_options(VipsOperation *operation, SaveParams *params) {
   if (params->gifBitdepth >= 1 && params->gifBitdepth <= 8) {
       ret = vips_object_set(VIPS_OBJECT(operation), "bitdepth", params->gifBitdepth, NULL);
   }
+
+  ret = vips_object_set(VIPS_OBJECT(operation), "keep", params->keep, NULL);
   return ret;
 }
 
 // https://github.com/libvips/libvips/blob/master/libvips/foreign/heifsave.c#L653
 int set_heifsave_options(VipsOperation *operation, SaveParams *params) {
   int ret = vips_object_set(VIPS_OBJECT(operation), "lossless",
-                            params->heifLossless, NULL);
+                            params->heifLossless, "keep", params->keep, NULL);
 
 #if (VIPS_MAJOR_VERSION >= 8) && (VIPS_MINOR_VERSION >= 13)
   if (!ret && params->heifBitdepth && params->heifEffort) {
@@ -382,7 +384,7 @@ int set_heifsave_options(VipsOperation *operation, SaveParams *params) {
 
 // https://github.com/libvips/libvips/blob/master/libvips/foreign/heifsave.c#L653
 int set_avifsave_options(VipsOperation *operation, SaveParams *params) {
-  int ret = vips_object_set(VIPS_OBJECT(operation), "strip", params->stripMetadata, "compression",
+  int ret = vips_object_set(VIPS_OBJECT(operation), "keep", params->keep, "compression",
                             VIPS_FOREIGN_HEIF_COMPRESSION_AV1, "lossless",
                             params->heifLossless, NULL);
 
@@ -410,7 +412,7 @@ int set_jp2ksave_options(VipsOperation *operation, SaveParams *params) {
   int ret = vips_object_set(
       VIPS_OBJECT(operation), "subsample_mode", params->jpegSubsample,
       "tile_height", params->jp2kTileHeight, "tile_width", params->jp2kTileWidth,
-      "lossless", params->jp2kLossless, NULL);
+      "lossless", params->jp2kLossless, "keep", params->keep, NULL);
 
   if (!ret && params->quality) {
     ret = vips_object_set(VIPS_OBJECT(operation), "Q", params->quality, NULL);
@@ -423,7 +425,7 @@ int set_jxlsave_options(VipsOperation *operation, SaveParams *params) {
   int ret = vips_object_set(
       VIPS_OBJECT(operation), "tier", params->jxlTier,
       "distance", params->jxlDistance, "effort", params->jxlEffort,
-      "lossless", params->jxlLossless, NULL);
+      "lossless", params->jxlLossless, "keep", params->keep, NULL);
 
   if (!ret && params->quality) {
     ret = vips_object_set(VIPS_OBJECT(operation), "Q", params->quality, NULL);
@@ -535,7 +537,7 @@ static SaveParams defaultSaveParams = {
 
     .interlace = FALSE,
     .quality = 0,
-    .stripMetadata = FALSE,
+    .keep = VIPS_FOREIGN_KEEP_ALL,
 
     .jpegOptimizeCoding = FALSE,
     .jpegSubsample = VIPS_FOREIGN_SUBSAMPLE_ON,

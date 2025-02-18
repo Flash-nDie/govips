@@ -172,7 +172,7 @@ type ExportParams struct {
 	Interlaced         bool
 	Lossless           bool
 	Effort             int
-	StripMetadata      bool
+	Keep               ForeignKeep
 	OptimizeCoding     bool          // jpeg param
 	SubsampleMode      SubsampleMode // jpeg param
 	TrellisQuant       bool          // jpeg param
@@ -195,6 +195,7 @@ func NewDefaultExportParams() *ExportParams {
 		Interlaced:  true,
 		Lossless:    false,
 		Effort:      4,
+		Keep:        VipsForeignKeepAll,
 	}
 }
 
@@ -206,6 +207,7 @@ func NewDefaultJPEGExportParams() *ExportParams {
 		Format:     ImageTypeJPEG,
 		Quality:    80,
 		Interlaced: true,
+		Keep:       VipsForeignKeepAll,
 	}
 }
 
@@ -217,6 +219,7 @@ func NewDefaultPNGExportParams() *ExportParams {
 		Format:      ImageTypePNG,
 		Compression: 6,
 		Interlaced:  false,
+		Keep:        VipsForeignKeepAll,
 	}
 }
 
@@ -229,12 +232,13 @@ func NewDefaultWEBPExportParams() *ExportParams {
 		Quality:  75,
 		Lossless: false,
 		Effort:   4,
+		Keep:     VipsForeignKeepAll,
 	}
 }
 
 // JpegExportParams are options when exporting a JPEG to file or buffer
 type JpegExportParams struct {
-	StripMetadata      bool
+	Keep               ForeignKeep
 	Quality            int
 	Interlace          bool
 	OptimizeCoding     bool
@@ -251,20 +255,21 @@ func NewJpegExportParams() *JpegExportParams {
 	return &JpegExportParams{
 		Quality:   80,
 		Interlace: true,
+		Keep:      VipsForeignKeepAll,
 	}
 }
 
 // PngExportParams are options when exporting a PNG to file or buffer
 type PngExportParams struct {
-	StripMetadata bool
-	Compression   int
-	Filter        PngFilter
-	Interlace     bool
-	Quality       int
-	Palette       bool
-	Dither        float64
-	Bitdepth      int
-	Profile       string // TODO: Use this param during save
+	Keep        ForeignKeep
+	Compression int
+	Filter      PngFilter
+	Interlace   bool
+	Quality     int
+	Palette     bool
+	Dither      float64
+	Bitdepth    int
+	Profile     string // TODO: Use this param during save
 }
 
 // NewPngExportParams creates default values for an export of a PNG image.
@@ -275,6 +280,7 @@ func NewPngExportParams() *PngExportParams {
 		Filter:      PngFilterNone,
 		Interlace:   false,
 		Palette:     false,
+		Keep:        VipsForeignKeepAll,
 	}
 }
 
@@ -282,7 +288,7 @@ func NewPngExportParams() *PngExportParams {
 // see https://www.libvips.org/API/current/VipsForeignSave.html#vips-webpsave
 // for details on each parameter
 type WebpExportParams struct {
-	StripMetadata   bool
+	Keep            ForeignKeep
 	Quality         int
 	Lossless        bool
 	NearLossless    bool
@@ -301,19 +307,20 @@ func NewWebpExportParams() *WebpExportParams {
 		Lossless:        false,
 		NearLossless:    false,
 		ReductionEffort: 4,
+		Keep:            VipsForeignKeepAll,
 	}
 }
 
 // TiffExportParams are options when exporting a TIFF to file or buffer
 type TiffExportParams struct {
-	StripMetadata bool
-	Quality       int
-	Compression   TiffCompression
-	Predictor     TiffPredictor
-	Pyramid       bool
-	Tile          bool
-	TileHeight    int
-	TileWidth     int
+	Keep        ForeignKeep
+	Quality     int
+	Compression TiffCompression
+	Predictor   TiffPredictor
+	Pyramid     bool
+	Tile        bool
+	TileHeight  int
+	TileWidth   int
 }
 
 // NewTiffExportParams creates default values for an export of a TIFF image.
@@ -326,6 +333,7 @@ func NewTiffExportParams() *TiffExportParams {
 		Tile:        false,
 		TileHeight:  256,
 		TileWidth:   256,
+		Keep:        VipsForeignKeepAll,
 	}
 }
 
@@ -334,11 +342,11 @@ func NewTiffExportParams() *TiffExportParams {
 // If vips version is below 8.12, then `vips_magicksave_buffer` is used, and only `Bitdepth`, `Quality` is used.
 // StripMetadata does nothing to Gif images.
 type GifExportParams struct {
-	StripMetadata bool
-	Quality       int
-	Dither        float64
-	Effort        int
-	Bitdepth      int
+	Keep     ForeignKeep
+	Quality  int
+	Dither   float64
+	Effort   int
+	Bitdepth int
 }
 
 // NewGifExportParams creates default values for an export of a GIF image.
@@ -347,6 +355,7 @@ func NewGifExportParams() *GifExportParams {
 		Quality:  75,
 		Effort:   7,
 		Bitdepth: 8,
+		Keep:     VipsForeignKeepAll,
 	}
 }
 
@@ -356,6 +365,7 @@ type HeifExportParams struct {
 	Bitdepth int
 	Effort   int
 	Lossless bool
+	Keep     ForeignKeep
 }
 
 // NewHeifExportParams creates default values for an export of a HEIF image.
@@ -365,16 +375,17 @@ func NewHeifExportParams() *HeifExportParams {
 		Bitdepth: 8,
 		Effort:   5,
 		Lossless: false,
+		Keep:     VipsForeignKeepAll,
 	}
 }
 
 // AvifExportParams are options when exporting an AVIF to file or buffer.
 type AvifExportParams struct {
-	StripMetadata bool
-	Quality       int
-	Bitdepth      int
-	Effort        int
-	Lossless      bool
+	Keep     ForeignKeep
+	Quality  int
+	Bitdepth int
+	Effort   int
+	Lossless bool
 
 	// DEPRECATED - Use Effort instead.
 	Speed int
@@ -387,6 +398,7 @@ func NewAvifExportParams() *AvifExportParams {
 		Bitdepth: 8,
 		Effort:   5,
 		Lossless: false,
+		Keep:     VipsForeignKeepAll,
 	}
 }
 
@@ -397,6 +409,7 @@ type Jp2kExportParams struct {
 	TileWidth     int
 	TileHeight    int
 	SubsampleMode SubsampleMode
+	Keep          ForeignKeep
 }
 
 // NewJp2kExportParams creates default values for an export of an JPEG2000 image.
@@ -406,6 +419,7 @@ func NewJp2kExportParams() *Jp2kExportParams {
 		Lossless:   false,
 		TileWidth:  512,
 		TileHeight: 512,
+		Keep:       VipsForeignKeepAll,
 	}
 }
 
@@ -416,6 +430,7 @@ type JxlExportParams struct {
 	Tier     int
 	Distance float64
 	Effort   int
+	Keep     ForeignKeep
 }
 
 // NewJxlExportParams creates default values for an export of an JXL image.
@@ -425,6 +440,7 @@ func NewJxlExportParams() *JxlExportParams {
 		Lossless: false,
 		Effort:   7,
 		Distance: 1.0,
+		Keep:     VipsForeignKeepAll,
 	}
 }
 
@@ -865,19 +881,20 @@ func (r *ImageRef) Export(params *ExportParams) ([]byte, *ImageMetadata, error) 
 	case ImageTypeGIF:
 		return r.ExportGIF(&GifExportParams{
 			Quality: params.Quality,
+			Keep:    params.Keep,
 		})
 	case ImageTypeWEBP:
 		return r.ExportWebp(&WebpExportParams{
-			StripMetadata:   params.StripMetadata,
+			Keep:            params.Keep,
 			Quality:         params.Quality,
 			Lossless:        params.Lossless,
 			ReductionEffort: params.Effort,
 		})
 	case ImageTypePNG:
 		return r.ExportPng(&PngExportParams{
-			StripMetadata: params.StripMetadata,
-			Compression:   params.Compression,
-			Interlace:     params.Interlaced,
+			Keep:        params.Keep,
+			Compression: params.Compression,
+			Interlace:   params.Interlaced,
 		})
 	case ImageTypeTIFF:
 		compression := TiffCompressionLzw
@@ -885,24 +902,26 @@ func (r *ImageRef) Export(params *ExportParams) ([]byte, *ImageMetadata, error) 
 			compression = TiffCompressionNone
 		}
 		return r.ExportTiff(&TiffExportParams{
-			StripMetadata: params.StripMetadata,
-			Quality:       params.Quality,
-			Compression:   compression,
+			Keep:        params.Keep,
+			Quality:     params.Quality,
+			Compression: compression,
 		})
 	case ImageTypeHEIF:
 		return r.ExportHeif(&HeifExportParams{
+			Keep:     params.Keep,
 			Quality:  params.Quality,
 			Lossless: params.Lossless,
 		})
 	case ImageTypeAVIF:
 		return r.ExportAvif(&AvifExportParams{
-			StripMetadata: params.StripMetadata,
-			Quality:       params.Quality,
-			Lossless:      params.Lossless,
-			Speed:         params.Speed,
+			Keep:     params.Keep,
+			Quality:  params.Quality,
+			Lossless: params.Lossless,
+			Speed:    params.Speed,
 		})
 	case ImageTypeJXL:
 		return r.ExportJxl(&JxlExportParams{
+			Keep:     params.Keep,
 			Quality:  params.Quality,
 			Lossless: params.Lossless,
 			Effort:   params.Effort,
@@ -911,7 +930,7 @@ func (r *ImageRef) Export(params *ExportParams) ([]byte, *ImageMetadata, error) 
 		format = ImageTypeJPEG
 		return r.ExportJpeg(&JpegExportParams{
 			Quality:            params.Quality,
-			StripMetadata:      params.StripMetadata,
+			Keep:               params.Keep,
 			Interlace:          params.Interlaced,
 			OptimizeCoding:     params.OptimizeCoding,
 			SubsampleMode:      params.SubsampleMode,

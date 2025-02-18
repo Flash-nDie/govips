@@ -79,7 +79,7 @@ typedef struct SaveParams {
   ImageType outputFormat;
   size_t outputLen;
 
-  BOOL stripMetadata;
+  VipsForeignKeep keep;
   int quality;
   BOOL interlace;
 
