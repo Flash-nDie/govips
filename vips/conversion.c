@@ -239,12 +239,13 @@ int crop(VipsImage *in, VipsImage **out, int left, int top,
   int in_width = in->Xsize;
   VipsObject *base = VIPS_OBJECT(vips_image_new());
   VipsImage **page = (VipsImage **) vips_object_local_array(base, n_pages);
+  VipsImage **cropped_page = (VipsImage **) vips_object_local_array(base, n_pages);
   VipsImage **copy = (VipsImage **) vips_object_local_array(base, 1);
   // split image into cropped frames
   for (int i = 0; i < n_pages; i++) {
     if (
       vips_extract_area(in, &page[i], 0, page_height * i, in_width, page_height, NULL) ||
-      vips_crop(page[i], &page[i], left, top, width, height, NULL)
+      vips_crop(page[i], &cropped_page[i], left, top, width, height, NULL)
     ) {
       g_object_unref(base);
       return -1;
@@ -254,7 +255,7 @@ int crop(VipsImage *in, VipsImage **out, int left, int top,
   // reassemble frames and set page height
   // copy before modifying metadata
   if(
-    vips_arrayjoin(page, &copy[0], n_pages, "across", 1, NULL) ||
+    vips_arrayjoin(cropped_page, &copy[0], n_pages, "across", 1, NULL) ||
     vips_copy(copy[0], out, NULL)
   ) {
     g_object_unref(base);
