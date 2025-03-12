@@ -330,7 +330,10 @@ int set_tiffsave_options(VipsOperation *operation, SaveParams *params) {
 
 // https://libvips.github.io/libvips/API/current/VipsForeignSave.html#vips-magicksave-buffer
 int set_magicksave_options(VipsOperation *operation, SaveParams *params) {
-  int ret = vips_object_set(VIPS_OBJECT(operation), "format", "GIF", "bitdepth", params->gifBitdepth, NULL);
+  int ret = vips_object_set(VIPS_OBJECT(operation), "format", params->magickFormat,
+                            "optimize_gif_frames", params->magickOptimizeGifFrames,
+                            "optimize_gif_transparency", params->magickOptimizeGifTransparency,
+                            "bitdepth", params->magickBitDepth, NULL);
 
   if (!ret && params->quality) {
     ret = vips_object_set(VIPS_OBJECT(operation), "quality", params->quality,
@@ -494,6 +497,11 @@ int save_to_buffer(SaveParams *params) {
 #if (VIPS_MAJOR_VERSION >= 8) && (VIPS_MINOR_VERSION >= 12)
       return save_buffer("gifsave_buffer", params, set_gifsave_options);
 #else
+      // Gif save through ImageMagick below Vips Version 8.12
+      params->magickFormat="GIF";
+      params->magickOptimizeGifFrames=FALSE;
+      params->magickOptimizeGifTransparency=FALSE;
+      params->magickBitDepth=params->gifBitdepth;
       return save_buffer("magicksave_buffer", params, set_magicksave_options);
 #endif
     case AVIF:
@@ -502,6 +510,8 @@ int save_to_buffer(SaveParams *params) {
       return save_buffer("jp2ksave_buffer", params, set_jp2ksave_options);
     case JXL:
       return save_buffer("jxlsave_buffer", params, set_jxlsave_options);
+    case MAGICK:
+      return save_buffer("magicksave_buffer", params, set_magicksave_options);
     default:
       g_warning("Unsupported output type given: %d", params->outputFormat);
   }

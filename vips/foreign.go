@@ -5,6 +5,7 @@ import "C"
 import (
 	"bytes"
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"golang.org/x/image/bmp"
 	"golang.org/x/net/html/charset"
@@ -527,6 +528,25 @@ func vipsSaveJxlToBuffer(in *C.VipsImage, params JxlExportParams) ([]byte, error
 	p.jxlTier = C.int(params.Tier)
 	p.jxlDistance = C.double(params.Distance)
 	p.jxlEffort = C.int(params.Effort)
+	p.keep = C.VipsForeignKeep(params.Keep)
+
+	return vipsSaveToBuffer(p)
+}
+
+func vipsSaveMagickToBuffer(in *C.VipsImage, params MagickExportParams) ([]byte, error) {
+	incOpCounter("save_magick_buffer")
+
+	if params.Format == "" {
+		return nil, errors.New("magick format required")
+	}
+	p := C.create_save_params(C.MAGICK)
+	p.inputImage = in
+	p.outputFormat = C.MAGICK
+	p.quality = C.int(params.Quality)
+	p.magickFormat = C.CString(params.Format)
+	p.magickOptimizeGifFrames = C.int(boolToInt(params.OptimizeGifFrames))
+	p.magickOptimizeGifTransparency = C.int(boolToInt(params.OptimizeGifTransparency))
+	p.magickBitDepth = C.int(params.BitDepth)
 	p.keep = C.VipsForeignKeep(params.Keep)
 
 	return vipsSaveToBuffer(p)
